@@ -3,13 +3,14 @@ import calendar
 import os
 import operator
 
+
 def interpolate(coord, start, end, prop):
 
     if prop == "time":
         # extracting date and time into one object
-        t0 = datetime.strptime('{0} {1}'.format(start['date'], start['time']), '%d-%b-%y %H:%M:%S')
-        t1 = datetime.strptime('{0} {1}'.format(end['date'], end['time']), '%d-%b-%y %H:%M:%S')
-        t_ = datetime.strptime('{0} {1}'.format(coord['date'], coord['time']), '%d-%b-%y %H:%M:%S')
+        t0 = datetime.strptime('{0} {1}'.format(start['date'], start['time']), '%d-%b-%y %I:%M:%S %p')
+        t1 = datetime.strptime('{0} {1}'.format(end['date'], end['time']), '%d-%b-%y %I:%M:%S %p')
+        t_ = datetime.strptime('{0} {1}'.format(coord['date'], coord['time']), '%d-%b-%y %I:%M:%S %p')
 
         # calculating the time differences
         dt = calendar.timegm(t1.timetuple())-calendar.timegm(t0.timetuple())
