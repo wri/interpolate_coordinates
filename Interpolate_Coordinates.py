@@ -8,9 +8,9 @@ def interpolate(coord, start, end, prop):
 
     if prop == "time":
         # extracting date and time into one object
-        t0 = datetime.strptime('{0} {1}'.format(start['date'], start['time']), '%d-%b-%y %I:%M:%S %p')
-        t1 = datetime.strptime('{0} {1}'.format(end['date'], end['time']), '%d-%b-%y %I:%M:%S %p')
-        t_ = datetime.strptime('{0} {1}'.format(coord['date'], coord['time']), '%d-%b-%y %I:%M:%S %p')
+        t0 = datetime.strptime('{0} {1}'.format(start['date'], start['time']), '%d-%b-%y %-I:%M:%S %p')
+        t1 = datetime.strptime('{0} {1}'.format(end['date'], end['time']), '%d-%b-%y %-I:%M:%S %p')
+        t_ = datetime.strptime('{0} {1}'.format(coord['date'], coord['time']), '%d-%b-%y %-I:%M:%S %p')
 
         # calculating the time differences
         dt = calendar.timegm(t1.timetuple())-calendar.timegm(t0.timetuple())
@@ -32,14 +32,7 @@ def interpolate(coord, start, end, prop):
     return coord
 
 
-def update_coordinates(f, prop):
-
-    fields = dict()
-    fields['date'] = 2
-    fields['time'] = 3
-    fields['lat'] = 0
-    fields['lon'] = 1
-    fields['dist'] = 4
+def update_coordinates(f, prop, fields):
 
     sorted_fields = sorted(fields.items(), key=operator.itemgetter(1))
 
@@ -64,7 +57,8 @@ def update_coordinates(f, prop):
             empty_coord = list()
 
         else:
-            if len(l_value['lat']) == 0:
+
+            if len(l_value['lon']) == 0 or len(l_value[prop]) == 0:
                 empty_coord.append(l_value)
             else:
 
@@ -96,7 +90,18 @@ def update_coordinates(f, prop):
 
 
 
-fname = r'C:\Users\Thomas.Maschler\Desktop\pa\Book1.csv'
+fname = r'C:\Users\Mimi\Dropbox\CARPE III- WRI\AWF\_normalized\AWF_Iyondji_2012_recce_Mimi1.csv'
+
+
+
+fields = dict()
+fields['date'] = 2
+fields['time'] = 3
+fields['lat'] = 0
+fields['lon'] = 1
+fields['dist'] = 4
+
+
 
 print fname
 
@@ -104,9 +109,9 @@ print fname
 # date, time, lat, lon, dist
 
 with open(fname) as f:
-    new_file = update_coordinates(f, "dist")
+    new_file = update_coordinates(f, "dist", fields)
 
-new_file = update_coordinates(new_file, "time")
+new_file = update_coordinates(new_file, "time", fields)
 
 dir_name = os.path.dirname(fname)
 new_name = "{0}_new{1}".format(os.path.splitext(fname)[0],os.path.splitext(fname)[1])
@@ -114,4 +119,4 @@ new_name = "{0}_new{1}".format(os.path.splitext(fname)[0],os.path.splitext(fname
 
 with open(new_name, 'w') as f:
     for line in new_file:
-      f.write("%s\n" % line)
+      f.write("%s" % line)
