@@ -90,7 +90,7 @@ def update_coordinates(f, prop, fields):
 
 
 
-fname = r'C:\Users\Mimi\Dropbox\CARPE III- WRI\AWF\_normalized\AWF_Iyondji_2012_recce_Mimi1.csv'
+fname = r'C:\Users\Mimi\Dropbox\CARPE III- WRI\WCS\_normalized\Ndoki-Likouala_Mimi\Batanga_recce_2007\Batanga_recces 2007_Mimi_coor.csv'
 
 
 
@@ -103,7 +103,6 @@ fields['dist'] = 4
 
 
 
-print fname
 
 # assumed file structure
 # date, time, lat, lon, dist
