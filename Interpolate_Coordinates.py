@@ -8,9 +8,9 @@ def interpolate(coord, start, end, prop):
 
     if prop == "time":
         # extracting date and time into one object
-        t0 = datetime.strptime('{0} {1}'.format(start['date'], start['time']), '%d-%b-%y %-I:%M:%S %p')
-        t1 = datetime.strptime('{0} {1}'.format(end['date'], end['time']), '%d-%b-%y %-I:%M:%S %p')
-        t_ = datetime.strptime('{0} {1}'.format(coord['date'], coord['time']), '%d-%b-%y %-I:%M:%S %p')
+        t0 = datetime.strptime('{0} {1}'.format(start['date'], start['time']), '%m/%d/%Y %I:%M:%S %p')
+        t1 = datetime.strptime('{0} {1}'.format(end['date'], end['time']), '%m/%d/%Y %I:%M:%S %p')
+        t_ = datetime.strptime('{0} {1}'.format(coord['date'], coord['time']), '%m/%d/%Y %I:%M:%S %p')
 
         # calculating the time differences
         dt = calendar.timegm(t1.timetuple())-calendar.timegm(t0.timetuple())
@@ -56,11 +56,14 @@ def update_coordinates(f, prop, fields):
             start = l_value
             empty_coord = list()
 
+        elif len(l_value['lon']) == 0 or len(l_value[prop]) == 0:
+                empty_coord.append(l_value)
+
         else:
 
-            if len(l_value['lon']) == 0 or len(l_value[prop]) == 0:
-                empty_coord.append(l_value)
-            else:
+
+
+
 
                 end = l_value
 
@@ -69,13 +72,16 @@ def update_coordinates(f, prop, fields):
                         coord = interpolate(coord, start, end, prop)
 
                     new_line = ''
-                    i = 0
+                    j = 0
+
                     for sorted_field in sorted_fields:
-                        if i == 0:
+                        if j == 0:
+
                             new_line = coord[sorted_field[0]]
                         else:
                             new_line = "{0},{1}".format(new_line, coord[sorted_field[0]])
-                        i += 1
+                        j += 1
+
                     new_line = "{0}\n".format(new_line)
                     new_file.append(new_line)
 
@@ -103,14 +109,17 @@ fields['dist'] = 4
 
 
 
+print fname
 
 # assumed file structure
 # date, time, lat, lon, dist
 
 with open(fname) as f:
-    new_file = update_coordinates(f, "dist", fields)
+   print "Interpolate coordinates using distance"
+   new_file = update_coordinates(f, "time", fields)
 
-new_file = update_coordinates(new_file, "time", fields)
+#print "Interpolate coordinates using time"
+#new_file = update_coordinates(new_file, "time", fields)
 
 dir_name = os.path.dirname(fname)
 new_name = "{0}_new{1}".format(os.path.splitext(fname)[0],os.path.splitext(fname)[1])
