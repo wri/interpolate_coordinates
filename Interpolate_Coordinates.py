@@ -3,14 +3,16 @@ import calendar
 import os
 import operator
 
+from optparse import OptionParser
+
 
 def interpolate(coord, start, end, prop):
 
     if prop == "time":
         # extracting date and time into one object
-        t0 = datetime.strptime('{0} {1}'.format(start['date'], start['time']), '%m/%d/%Y %I:%M:%S %p')
-        t1 = datetime.strptime('{0} {1}'.format(end['date'], end['time']), '%m/%d/%Y %I:%M:%S %p')
-        t_ = datetime.strptime('{0} {1}'.format(coord['date'], coord['time']), '%m/%d/%Y %I:%M:%S %p')
+        t0 = datetime.strptime('{0} {1}'.format(start['date'], start['time']), '%m/%d/%Y %H:%M:%S')
+        t1 = datetime.strptime('{0} {1}'.format(end['date'], end['time']), '%m/%d/%Y %H:%M:%S')
+        t_ = datetime.strptime('{0} {1}'.format(coord['date'], coord['time']), '%m/%d/%Y %H:%M:%S')
 
         # calculating the time differences
         dt = calendar.timegm(t1.timetuple())-calendar.timegm(t0.timetuple())
@@ -46,7 +48,7 @@ def update_coordinates(f, prop, fields):
 
         l_value = dict()
         for key in fields.keys():
-            l_value[key] = l[fields[key]].strip()
+            l_value[key] = l[int(fields[key])].strip()
 
         if i == 0:
             new_file.append(line)
@@ -95,36 +97,57 @@ def update_coordinates(f, prop, fields):
     return new_file
 
 
+if __name__ == "__main__":
 
-fname = r'C:\Users\Mimi\Dropbox\CARPE III- WRI\WCS\_normalized\Ndoki-Likouala_Mimi\Batanga_recce_2007\Batanga_recces 2007_Mimi_coor.csv'
+    parser = OptionParser()
+    parser.add_option("-f", "--file", dest="filename",
+                      help="input file", metavar="FILE")
+    parser.add_option("-d", "--date", dest="date",
+                      help="Date column", default=2)
 
+    parser.add_option("-t", "--time", dest="time",
+                      help="Time column", default=3)
 
+    parser.add_option("-x", "--lon", dest="lon",
+                      help="Lon column", default=1)
 
-fields = dict()
-fields['date'] = 2
-fields['time'] = 3
-fields['lat'] = 0
-fields['lon'] = 1
-fields['dist'] = 4
-
-
-
-print fname
-
-# assumed file structure
-# date, time, lat, lon, dist
-
-with open(fname) as f:
-   print "Interpolate coordinates using distance"
-   new_file = update_coordinates(f, "time", fields)
-
-#print "Interpolate coordinates using time"
-#new_file = update_coordinates(new_file, "time", fields)
-
-dir_name = os.path.dirname(fname)
-new_name = "{0}_new{1}".format(os.path.splitext(fname)[0],os.path.splitext(fname)[1])
+    parser.add_option("-y", "--lat", dest="lat",
+                      help="Lat column", default=0)
 
 
-with open(new_name, 'w') as f:
-    for line in new_file:
-      f.write("%s" % line)
+    parser.add_option("-z", "--dist", dest="dist",
+                      help="Dist column", default=4)
+
+    parser.add_option("-m", "--methode", dest="methode",
+                      help="Methode (dist, time)", default="dist")
+
+    (options, args) = parser.parse_args()
+
+    print options
+    print args
+
+    fields = dict()
+    fields['date'] = options.date
+    fields['time'] = options.time
+    fields['lat'] = options.lat
+    fields['lon'] = options.lon
+    fields['dist'] = options.dist
+
+    fname = options.filename #r'C:\Users\Thomas.Maschler\Desktop\lefini.csv'
+    print fname
+
+    # assumed file structure
+    # date, time, lat, lon, dist
+
+    with open(fname) as f:
+       print "Interpolate coordinates using {}".format(options.methode)
+       new_file = update_coordinates(f, options.methode, fields)
+
+    dir_name = os.path.dirname(fname)
+
+    
+    new_name = "{0}_new{1}".format(os.path.splitext(fname)[0],os.path.splitext(fname)[1])
+    print "Write result to {}".format(new_name) 
+    with open(new_name, 'w') as f:
+        for line in new_file:
+          f.write("%s" % line)
