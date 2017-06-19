@@ -1,6 +1,7 @@
 # interpolate_coordinates
 
 Expects a CSV file with 5 columns
+
 0. Lat
 1. Lon
 2. Date
