@@ -9,19 +9,23 @@ from optparse import OptionParser
 def interpolate(coord, start, end, prop):
 
     if prop == "time":
-        # extracting date and time into one object
-        t0 = datetime.strptime('{0} {1}'.format(start['date'], start['time']), '%m/%d/%Y %H:%M:%S')
-        t1 = datetime.strptime('{0} {1}'.format(end['date'], end['time']), '%m/%d/%Y %H:%M:%S')
-        t_ = datetime.strptime('{0} {1}'.format(coord['date'], coord['time']), '%m/%d/%Y %H:%M:%S')
+        try:
+            # extracting date and time into one object
+            t0 = datetime.strptime('{0} {1}'.format(start['date'], start['time']), '%m/%d/%Y %H:%M:%S')
+            t1 = datetime.strptime('{0} {1}'.format(end['date'], end['time']), '%m/%d/%Y %H:%M:%S')
+            t_ = datetime.strptime('{0} {1}'.format(coord['date'], coord['time']), '%m/%d/%Y %H:%M:%S')
+        
 
-        # calculating the time differences
-        dt = calendar.timegm(t1.timetuple())-calendar.timegm(t0.timetuple())
-        dt_ = calendar.timegm(t_.timetuple())-calendar.timegm(t0.timetuple())
+            # calculating the time differences
+            dt = calendar.timegm(t1.timetuple())-calendar.timegm(t0.timetuple())
+            dt_ = calendar.timegm(t_.timetuple())-calendar.timegm(t0.timetuple())
 
-        # calculate the coordinates using time difference
-        coord['lat'] = float(start['lat']) + (float(end['lat'])-float(start['lat'])) * (float(dt_)/float(dt))
-        coord['lon'] = float(start['lon']) + (float(end['lon'])-float(start['lon'])) * (float(dt_)/float(dt))
-
+            # calculate the coordinates using time difference
+            coord['lat'] = float(start['lat']) + (float(end['lat'])-float(start['lat'])) * (float(dt_)/float(dt))
+            coord['lon'] = float(start['lon']) + (float(end['lon'])-float(start['lon'])) * (float(dt_)/float(dt))
+        except ValueError:
+            print "Can't read date time:"
+            print "{} {}".format(coord['date'], coord['time'])
     elif prop == "dist":
         # calculate the coordinates using distance difference
         coord['lat'] = float(start['lat']) + (float(end['lat'])-float(start['lat'])) * ((float(coord['dist'])-float(start['dist']))/(float(end['dist'])-float(start['dist'])))
