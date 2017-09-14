@@ -13,4 +13,5 @@ call with options
 -y index of lat column
 -z index of distance column
 -m interpolation method (dist or time)
+-v value to interpolate (coord or time)
 ```
