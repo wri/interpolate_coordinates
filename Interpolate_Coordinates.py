@@ -3,6 +3,7 @@ from datetime import timedelta
 import calendar
 import os
 import operator
+import math
 
 from optparse import OptionParser
 
@@ -10,26 +11,45 @@ from optparse import OptionParser
 def interpolate(value, start, end, options):
 
     if options.value == "time":
-        #try:
+        if options.methode == 'dist':
+            #try:
+                t0 = datetime.strptime('{0} {1}'.format(start['date'], start['time']), '%m/%d/%Y %H:%M:%S')
+                t1 = datetime.strptime('{0} {1}'.format(end['date'], end['time']), '%m/%d/%Y %H:%M:%S')
+                dt = t1 - t0
+
+                d0 = float(start['dist'])
+                d1 = float(end['dist'])
+                d_ = float(value['dist'])
+                dd = d1 - d0
+                dd_ = d_ - d0
+
+                dt_ = dt.total_seconds() * dd_ / dd
+
+                value['time'] = (t0 + timedelta(0, dt_)).strftime("%H:%M:%S")
+            #except ValueError:
+            #    print "Can't read date time:"
+            #    print "{} {}".format(value['date'], value['time'])
+        elif options.methode == 'lat':
             t0 = datetime.strptime('{0} {1}'.format(start['date'], start['time']), '%m/%d/%Y %H:%M:%S')
             t1 = datetime.strptime('{0} {1}'.format(end['date'], end['time']), '%m/%d/%Y %H:%M:%S')
+
+            # calculating the time differences
             dt = t1 - t0
 
-            d0 = float(start['dist'])
-            d1 = float(end['dist'])
-            d_ = float(value['dist'])
-            dd = d1 - d0
-            dd_ = d_ - d0
+            dlat = float(end['lat']) - float(start['lat'])
+            dlat_ = float(value['lat']) - float(start['lat'])
+            dlon = float(end['lon']) - float(start['lon'])
+            dlon_ = float(value['lon']) - float(start['lon'])
 
-            dt_ = dt.total_seconds() * dd_ / dd
+            dt_lat = dlat_ * dt.total_seconds()/dlat
+            dt_lon = dlon_ * dt.total_seconds()/dlon
+            dt_ = math.sqrt(dt_lat**2 + dt_lon**2)
 
             value['time'] = (t0 + timedelta(0, dt_)).strftime("%H:%M:%S")
-        #except ValueError:
-        #    print "Can't read date time:"
-        #    print "{} {}".format(value['date'], value['time'])
+
 
     else:
-        if options.method == "time":
+        if options.methode == "time":
             try:
                 # extracting date and time into one object
                 t0 = datetime.strptime('{0} {1}'.format(start['date'], start['time']), '%m/%d/%Y %H:%M:%S')
@@ -47,7 +67,7 @@ def interpolate(value, start, end, options):
             except ValueError:
                 print "Can't read date time:"
                 print "{} {}".format(value['date'], value['time'])
-        elif options.method == "dist":
+        elif options.methode == "dist":
             # calculate the coordinates using distance difference
             value['lat'] = float(start['lat']) + (float(end['lat'])-float(start['lat'])) * ((float(value['dist'])-float(start['dist']))/(float(end['dist'])-float(start['dist'])))
             value['lon'] = float(start['lon']) + (float(end['lon'])-float(start['lon'])) * ((float(value['dist'])-float(start['dist']))/(float(end['dist'])-float(start['dist'])))
@@ -148,7 +168,7 @@ if __name__ == "__main__":
                       help="Dist column", default=4)
 
     parser.add_option("-m", "--methode", dest="methode",
-                      help="Methode (dist, time)", default="dist")
+                      help="Methode (dist, time, lat)", default="dist")
 
     parser.add_option("-v", "--value", dest="value",
                       help="Value to interpolate (coord, time)", default="coord")
